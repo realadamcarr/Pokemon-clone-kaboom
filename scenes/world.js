@@ -339,5 +339,72 @@ function setWorld(worldState){
           onCollideWithPlayer("spider", player, worldState);
           onCollideWithPlayer("centipede", player, worldState);
           onCollideWithPlayer("grass", player, worldState);
+
+          let menuOpen = false;
+          let menuContainer;
+          let selectedOptionIndex = 0; // Tracks the currently selected menu option
+          const menuOptions = ["Dex", "Mons", "Bag", "Stats", "Save", "Quit"];
+          
+          // Function to create the menu
+          function createMenu() {
+              menuContainer = add([
+                 fixed(),// Ensures the menu stays fixed on the screen
+                  pos(800, 20), // Position the menu in the top-right corner
+                  rect(320, 240), // Adjust the size of the menu
+                  outline(4),
+                  color(255, 255, 255), // White background
+                  opacity(1), // Fully visible
+                  "menu",
+              ]);
+          
+              menuOptions.forEach((option, index) => {
+                  menuContainer.add([
+                    fixed(),// Ensures the menu stays fixed on the screen
+                      text(`${index === selectedOptionIndex ? "• " : "  "}${option}`, { size: 24 }), // Add a dot for the selected option
+                      pos(20, 20 + index * 40), // Position each option with spacing
+                      color(0, 0, 0), // Black text color
+                      { tag: `menu-option-${index}` }, // Assign a tag for easy access
+                  ]);
+              });
+          }
+          
+          // Function to update the menu display
+          function updateMenu() {
+              menuContainer.children.forEach((child, index) => {
+                  if (child.tag === `menu-option-${index}`) {
+                      child.text = `${index === selectedOptionIndex ? "• " : "  "}${menuOptions[index]}`;
+                  }
+              });
+          }
+          
+          // Function to toggle the menu
+          function toggleMenu() {
+              if (menuOpen) {
+                  destroy(menuContainer);
+                  menuOpen = false;
+              } else {
+                  createMenu();
+                  menuOpen = true;
+              }
+          }
+          
+          // Listen for the 'x' key to toggle the menu
+          onKeyPress("x", () => {
+              if (player.isInDialogue) return; // Prevent menu during dialogue
+              toggleMenu();
+          });
+          
+          // Listen for the 'up' and 'down' keys to navigate the menu
+          onKeyPress("up", () => {
+              if (!menuOpen) return;
+              selectedOptionIndex = (selectedOptionIndex - 1 + menuOptions.length) % menuOptions.length;
+              updateMenu();
+          });
+          
+          onKeyPress("down", () => {
+              if (!menuOpen) return;
+              selectedOptionIndex = (selectedOptionIndex + 1) % menuOptions.length;
+              updateMenu();
+          });
         }
 
